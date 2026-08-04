@@ -42,27 +42,27 @@
   /* ── 两侧漂浮装饰 ── */
   .deco{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
   .deco i{position:absolute;border-radius:50%;display:block;
-    filter:blur(1px);opacity:.5}
-  .deco i.ring{background:none;border:2px solid currentColor;opacity:.28;filter:none}
-  @media (max-width:1180px){.deco{display:none}}
+    filter:blur(1px);opacity:.62}
+  .deco i.ring{background:none;border:2.5px solid currentColor;opacity:.4;filter:none}
+  @media (max-width:900px){.deco{display:none}}
 
-  .d1{left:3vw;  top:14%; width:120px;height:120px;
+  .d1{left:-40px; top:12%; width:110px;height:110px;
       background:linear-gradient(140deg,var(--peach),var(--blush));
       animation:drift 19s ease-in-out infinite}
-  .d2{left:7vw;  top:44%; width:54px; height:54px;
+  .d2{left:26px;  top:42%; width:46px; height:46px;
       background:linear-gradient(140deg,var(--butter),var(--apricot));
       animation:drift 14s ease-in-out infinite reverse}
-  .d3{left:2vw;  top:70%; width:86px; height:86px; color:var(--peach);
+  .d3{left:-24px; top:68%; width:88px; height:88px; color:var(--peach);
       animation:drift 23s ease-in-out infinite}
-  .d4{right:4vw; top:10%; width:70px; height:70px; color:var(--sage);
+  .d4{right:22px; top:9%;  width:58px; height:58px; color:var(--sage);
       animation:drift 17s ease-in-out infinite reverse}
-  .d5{right:2vw; top:38%; width:140px;height:140px;
+  .d5{right:-46px;top:36%; width:130px;height:130px;
       background:linear-gradient(140deg,var(--butter),var(--peach));
       animation:drift 26s ease-in-out infinite}
-  .d6{right:8vw; top:66%; width:44px; height:44px;
+  .d6{right:34px; top:64%; width:38px; height:38px;
       background:var(--blush);
       animation:drift 12s ease-in-out infinite reverse}
-  .d7{right:5vw; top:84%; width:96px; height:96px; color:var(--apricot);
+  .d7{right:-18px;top:82%; width:90px; height:90px; color:var(--apricot);
       animation:drift 21s ease-in-out infinite}
   @keyframes drift{
     0%,100%{transform:translate(0,0) scale(1)}
@@ -101,9 +101,9 @@
   /* 工具行 */
   .tools{display:flex;gap:8px;flex-wrap:wrap;align-items:center;
     font-size:12.5px;color:var(--muted);padding:18px 0 16px}
-  .langsel{font:inherit;font-size:12.5px;padding:5px 11px;border-radius:99px;background:var(--card);
-    border:1.5px solid var(--line);color:var(--muted);cursor:pointer}
-  .langsel:hover{border-color:var(--peach);color:var(--rose)}
+  .langwrap{position:relative;display:inline-block}
+  .langwrap select{position:absolute;inset:0;width:100%;height:100%;
+    opacity:0;cursor:pointer;font:inherit}
   .tools span{cursor:pointer;padding:5px 13px;border-radius:99px;background:var(--card);
     border:1.5px solid var(--line);transition:transform .16s,border-color .16s,color .16s}
   .tools span:hover{transform:translateY(-1px);border-color:var(--peach);color:var(--rose)}
@@ -265,7 +265,7 @@
     <span id="t-prt"></span><span class="dot">·</span>
     <span id="t-share" style="display:none"></span>
     <span id="t-set"></span><span class="dot">·</span>
-    <select id="lang" class="langsel"></select>
+    <span class="langwrap"><span id="t-lang"></span><select id="lang"></select></span>
     <span class="sp" style="flex:1"></span>
     <span id="t-count" class="dot"></span>
   </div>
@@ -307,7 +307,7 @@ const T={
 en:{title:"Disclosure Trainer for Interpreters",focus:"Practice",list:"All passages",
  allCat:"All categories",search:"Search",
  add:"Add",imp:"Import",exp:"Backup",print:"PDF",settings:"Settings",
- simp:"Simplified",trad:"Traditional",
+ lang:"Language",simp:"Chinese (Simplified)",trad:"Chinese (Traditional)",
  due:"Due only",done:"Include mastered",shuffle:"Shuffle",split:"Split sentences",
  hl:"Highlight numbers",speed:"Playback speed",
  count:(d,a)=>`${d} due · ${a} total`,
@@ -335,7 +335,7 @@ en:{title:"Disclosure Trainer for Interpreters",focus:"Practice",list:"All passa
 zh:{title:"口译员披露段落训练器",focus:"练习",list:"全部段落",
  allCat:"全部类别",search:"搜索",
  add:"新增",imp:"导入",exp:"备份",print:"存 PDF",settings:"设置",
- simp:"简体",trad:"繁體",
+ lang:"语言",simp:"中文（简体）",trad:"中文（繁體）",
  due:"只看到期",done:"含已掌握",shuffle:"随机顺序",split:"拆句",
  hl:"高亮数字",speed:"朗读语速",
  count:(d,a)=>`到期 ${d} · 共 ${a}`,
@@ -479,6 +479,7 @@ function applyUI(){
   S("h1",t("title"));S("m-focus",t("focus"));S("m-list",t("list"));
   S("t-add",t("add"));S("t-imp",t("imp"));S("t-exp",t("exp"));
   S("t-prt",t("print"));S("t-set",t("settings"));
+  S("t-lang",t("lang"));
   const ls=document.getElementById("lang");
   ls.innerHTML=`<option value="zh">${t("simp")}</option><option value="zht">${t("trad")}</option>`;
   ls.value=useT?"zht":"zh";
