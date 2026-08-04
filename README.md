@@ -1,42 +1,102 @@
-# 披露段落训练器 · Disclosure Segment Trainer
+# Disclosure Trainer for Interpreters
 
-给中英口译员练固定套话用的小工具。银行、保险这类电话里，代表会用很快的语速念一整段标准声明，这些段落每次都一样，所以正确的练法不是现场翻，是提前练熟到脱口而出。
+**[Open the trainer →](https://axiya3749.github.io/disclosure-trainer/)**
 
-工作时不能使用任何工具，所以这个训练器只用在通话之前。
+Banks and insurers open every call with a long scripted disclosure, read fast.
+Interpreters can't use any tools mid-call, so the only way through is to know
+these passages cold before the phone rings.
 
-**在线使用：** https://axiya3749.github.io/disclosure-trainer/
-
-## 功能
-
-- **练习模式** — 中文默认盖住，自己先口译出来，再点开对照
-- **跟读模式** — 浏览器朗读英文，语速 0.5x 到 1.6x 可调，从慢练到超过真实语速
-- **已掌握归档** — 练熟的段落点一下就收起来，列表永远只剩还不熟的
-- 按类别筛选、搜索、自己增删改、导出 JSON 备份
-
-## 内容从哪来
-
-只用公开来源，不用任何真实通话内容。
-
-1. **CFPB 信用卡协议数据库** — https://www.consumerfinance.gov/credit-cards/agreements/
-   收录 600 多家发卡机构的协议全文。CARD Act 强制要求公开，可自由取用。
-   这是最好的来源。
-2. **CFPB 示范表格（Know Before You Owe）** — 政府发布的标准披露模板。
-3. **各银行官网公开的持卡人协议、隐私声明、费用表。**
-
-建议去掉具体品牌名和产品名，改成通用说法。既降低风险，材料也更通用。
-
-**不收录任何客户私人信息**，也不使用真实通话记录作为素材。
-
-## 使用
-
-单个 HTML 文件，无依赖。打开网页即可，或者下载 `index.html` 双击打开。数据存在浏览器 localStorage 里，建议定期点「导出」备份。
+This drills them the way the job actually works.
 
 ---
 
-A small tool for Mandarin/English interpreters to drill the scripted
-disclosure passages that come up in banking and insurance calls. These
-passages are identical every time and are read at speed, so the right
-way to handle them is to memorize a vetted rendering in advance rather
-than translate them live.
+## How it works
 
-Single HTML file, no dependencies, no build step.
+Four steps, in the order the real task happens:
+
+1. **Listen.** You hear the English. No text on screen, because on a call there
+   isn't any. Adjustable playback speed lets you practise slower than real, then
+   faster than real.
+2. **Take notes.** A notepad for your own symbols and shorthand. Notes are saved
+   per passage, so you can see how your note-taking changes over time.
+3. **Interpret and record.** Work from your notes, speak the Chinese out loud,
+   record it.
+4. **Check.** Reveal the source to find what your notes missed. Reveal the
+   reference rendering to check your accuracy. Play your recording back against
+   both.
+
+Then rate yourself: **Hard** brings it back tomorrow, **OK** in a few days,
+**Easy** in a week or more. Anything you mark as mastered leaves the rotation
+entirely. However many passages you add, you only ever face the ones due today.
+
+## Other things it does
+
+- Simplified and Traditional Chinese, switchable
+- Split long passages sentence by sentence
+- Numbers and percentages highlighted, since that's where interpreting fails most
+- Shuffle, so you learn the passages and not the order
+- Print a bilingual sheet
+- Import and export as JSON; import merges and never overwrites your own edits
+- Interface in English or Chinese
+- Dark mode, and animations respect `prefers-reduced-motion`
+
+Keyboard: <kbd>R</kbd> play · <kbd>P</kbd> pause · <kbd>C</kbd> next sentence ·
+<kbd>B</kbd> play back · <kbd>←</kbd><kbd>→</kbd> move between passages
+
+## Where the passages come from
+
+Only public sources. Nothing from a real call, ever.
+
+| Set | Source |
+|---|---|
+| Banking, 30 passages | [Regulation Z, Appendix G](https://www.consumerfinance.gov/rules-policy/regulations/1026/g/) federal model forms and clauses |
+| Health insurance, 38 passages | [Medicare.gov](https://www.medicare.gov/), [42 CFR 431.210](https://www.ecfr.gov/current/title-42/part-431/section-431.210), [California DHCS](https://www.dhcs.ca.gov/) |
+
+Also useful if you want to add your own: the CFPB's
+[credit card agreement database](https://www.consumerfinance.gov/credit-cards/agreements/),
+which holds agreements from more than 600 issuers, all public by law.
+
+Load a set with **Import**. It merges with what you already have and fills only
+blanks, so your own edits survive.
+
+## Rules for anything you add
+
+**Never enter client private information.** No names, dates of birth, account or
+member numbers, addresses, phone numbers, medical details, case details. This
+tool holds standard scripted boilerplate and nothing else.
+
+Strip specific brand and product names too. It keeps you clear of copyright on
+proprietary wording, and generic phrasing makes the material useful to more
+people.
+
+## The Chinese renderings
+
+The bundled Chinese is a starting draft, not an authority. **Review it before you
+drill it** — practising a wrong rendering until it's automatic is worse than not
+practising at all. Use Edit to replace anything with the wording you actually
+say on calls.
+
+## Running it
+
+One HTML file, no build, no dependencies, no server, no accounts, no tracking.
+Your passages live in your browser's local storage. Export regularly if you care
+about them.
+
+Microphone access requires HTTPS, so recording works on the hosted version but
+not when you open the file directly from disk.
+
+## Adapting it for another language
+
+The English source text and the practice logic are language-neutral. Replace the
+Chinese field with your own language, adjust the two interface strings at the top
+of the file, and it works the same. If you build a version for Spanish, Vietnamese,
+Arabic, or anything else, open an issue and I'll link it here.
+
+## License
+
+MIT. Do what you like with it.
+
+---
+
+<sub>Built by a working Mandarin interpreter who needed it. Not affiliated with any
+bank, insurer, or government agency.</sub>
