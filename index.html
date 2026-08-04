@@ -174,9 +174,6 @@
     background:var(--soft);color:var(--ink)}
   dialog textarea:focus,dialog input:focus{outline:none;border-color:var(--peach)}
   dialog label{display:block;font-size:11.5px;color:var(--muted);margin-bottom:6px;font-weight:600}
-  .warnbox{padding:13px 15px;border:2px dashed var(--warn);border-radius:14px;
-    line-height:1.65;font-size:11.5px;color:var(--warn);margin-bottom:18px;
-    background:rgba(251,227,168,.28)}
   .empty{text-align:center;color:var(--muted);padding:64px 20px;font-size:14px;line-height:2}
   .note{font-size:11.5px;color:var(--warn);margin-top:10px}
   footer{padding:34px 0 46px;font-size:11.5px;color:var(--muted);text-align:center}
@@ -227,6 +224,7 @@
     <span id="t-imp"></span><span class="dot">·</span>
     <span id="t-exp"></span><span class="dot">·</span>
     <span id="t-prt"></span><span class="dot">·</span>
+    <span id="t-share" style="display:none"></span>
     <span id="t-set"></span><span class="dot">·</span>
     <span id="t-script"></span>
     <span class="sp" style="flex:1"></span>
@@ -253,7 +251,6 @@
 </div>
 
 <dialog id="dlg"><form method="dialog">
-  <div class="warnbox" id="lb-warn"></div>
   <label id="lb-cat"></label>
   <input type="text" id="f-cat" style="width:100%;margin-bottom:13px">
   <label id="lb-en"></label><textarea id="f-en"></textarea>
@@ -289,8 +286,8 @@ en:{title:"Disclosure Trainer for Interpreters",focus:"Practice",list:"All passa
  prev:"Previous",next:"Next",pos:(a,b)=>`${a} of ${b}`,
  keys:"<kbd>R</kbd> play &nbsp;·&nbsp; <kbd>P</kbd> pause &nbsp;·&nbsp; <kbd>C</kbd> next sentence &nbsp;·&nbsp; <kbd>B</kbd> play back &nbsp;·&nbsp; <kbd>←</kbd><kbd>→</kbd> move between passages",
  empty:"Nothing due right now.<br>Open Settings and turn off “Due only” to see everything.",
- warn:"Standard scripted boilerplate only. <b>Never enter client private information</b>: names, dates of birth, account or member numbers, addresses, phone numbers, medical or case details.",
- fCat:"Category",fEn:"Source text (English)",fZh:"Reference rendering (Simplified Chinese)",
+
+ share:"Share edits",fCat:"Category",fEn:"Source text (English)",fZh:"Reference rendering (Simplified Chinese)",
  fZht:"Reference rendering (Traditional Chinese, optional)",
  save:"Save",cancel:"Cancel",del:"Delete",
  foot:"Passages come from public federal model forms. Nothing here is from a real call.",
@@ -317,8 +314,8 @@ zh:{title:"口译员披露段落训练器",focus:"练习",list:"全部段落",
  prev:"上一段",next:"下一段",pos:(a,b)=>`第 ${a} / ${b} 段`,
  keys:"<kbd>R</kbd> 播放 &nbsp;·&nbsp; <kbd>P</kbd> 暂停 &nbsp;·&nbsp; <kbd>C</kbd> 下一句 &nbsp;·&nbsp; <kbd>B</kbd> 回放录音 &nbsp;·&nbsp; <kbd>←</kbd><kbd>→</kbd> 上下段",
  empty:"现在没有到期的段落。<br>打开设置，关掉「只看到期」就能看全部。",
- warn:"只填标准声明套话。<b>禁止填入任何客户私人信息</b>：姓名、生日、账号、会员号、地址、电话、病历、案件细节。",
- fCat:"类别",fEn:"英文原文",fZh:"中文定稿（简体）",
+
+ share:"分享修改",fCat:"类别",fEn:"英文原文",fZh:"中文定稿（简体）",
  fZht:"中文定稿（繁體，可留空）",
  save:"保存",cancel:"取消",del:"删除",
  foot:"段落取自公开的联邦示范表格，不含任何真实通话内容。",
@@ -329,9 +326,74 @@ let ui=localStorage.getItem("dt_ui")||"en";
 const t=k=>T[ui][k];
 
 const SEED=[
- {cat:"Billing disputes",en:"This notice contains important information about your rights and our responsibilities under the Fair Credit Billing Act. Keep this notice for future use.",zh:"本通知载有重要信息，说明您在《公平信用账单法》下享有的权利以及我们所承担的责任。请妥善保存本通知，以备日后查阅。",zht:""},
- {cat:"Billing disputes",en:"If you think your bill is wrong, or if you need more information about a transaction on your bill, write to us at the address listed on your bill as soon as possible. We must hear from you no later than 60 days after we sent you the first bill on which the error or problem appeared.",zh:"如果您认为账单有误，或者需要了解账单上某笔交易的更多信息，请尽快按账单上列明的地址写信给我们。我们必须在您收到首份出现该错误或问题的账单之日起 60 天内收到您的来信。",zht:""},
- {cat:"Lost or stolen card",en:"You will not be liable for any unauthorized use that occurs after you notify us. You may, however, be liable for unauthorized use that occurs before your notice to us. In any case, your liability will not exceed $50.",zh:"在您通知我们之后发生的任何未经授权的使用，您无需承担责任。但在您通知我们之前发生的未经授权的使用，您可能需要承担责任。无论何种情况，您承担的责任上限均为 50 美元。",zht:""}
+ {"cat": "Balance methods", "en": "We figure the interest charge on your account by applying the periodic rate to the \"adjusted balance\" of your account. We get the \"adjusted balance\" by taking the balance you owed at the end of the previous billing cycle and subtracting any payments and credits received during the present billing cycle.", "zh": "我们将周期利率乘以您账户的「调整后余额」来计算利息费用。「调整后余额」的算法是：取您上一个账单周期结束时的欠款余额，再减去本账单周期内收到的所有还款和入账金额。", "zht": ""},
+ {"cat": "Balance methods", "en": "We figure the interest charge on your account by applying the periodic rate to the amount you owe at the beginning of each billing cycle. We do not subtract any payments or credits received during the billing cycle.", "zh": "我们将周期利率乘以您在每个账单周期开始时的欠款金额来计算利息费用。本周期内收到的还款和入账金额一律不予扣除。", "zht": ""},
+ {"cat": "Balance methods", "en": "To get the \"average daily balance\" we take the beginning balance of your account each day and subtract any payments or credits. We do not add in any new purchases, advances, or fees. This gives us the daily balance. Then, we add all the daily balances for the billing cycle together and divide the total by the number of days in the billing cycle.", "zh": "「平均每日余额」的算法是：取您账户每天的期初余额，减去还款和入账金额，不计入任何新的消费、预借现金或费用，得出当日余额。然后把该账单周期内所有的每日余额相加，除以该周期的天数。", "zht": ""},
+ {"cat": "Balance methods", "en": "We figure the interest charge on your account by applying the periodic rate to the amount you owe at the end of each billing cycle, including new purchases and deducting payments and credits made during the billing cycle.", "zh": "我们将周期利率乘以您在每个账单周期结束时的欠款金额来计算利息费用，其中包含本周期内的新增消费，并已扣除本周期内的还款和入账金额。", "zht": ""},
+ {"cat": "Balance methods", "en": "We figure the interest charge on your account by applying the periodic rate to the \"daily balance\" of your account for each day in the billing cycle. To get the \"daily balance\" we take the beginning balance of your account each day, add any new purchases, advances, or fees, and subtract any unpaid interest or other finance charges and any payments or credits.", "zh": "我们将周期利率乘以账单周期内每一天的「每日余额」来计算利息费用。「每日余额」的算法是：取您账户每天的期初余额，加上当日新增的消费、预借现金或费用，再减去未付利息、其他财务费用，以及还款和入账金额。", "zht": ""},
+ {"cat": "Lost or stolen card", "en": "If you notice the loss or theft of your credit card or a possible unauthorized use of your card, you should write to us immediately at the address listed on your bill, or call us at the number provided.", "zh": "如果您发现信用卡遗失、被盗，或者卡片可能遭到未经授权的使用，请立即按账单上列明的地址写信通知我们，或拨打所提供的电话与我们联系。", "zht": ""},
+ {"cat": "Lost or stolen card", "en": "You will not be liable for any unauthorized use that occurs after you notify us. You may, however, be liable for unauthorized use that occurs before your notice to us. In any case, your liability will not exceed $50.", "zh": "在您通知我们之后发生的任何未经授权的使用，您无需承担责任。但在您通知我们之前发生的未经授权的使用，您可能需要承担责任。无论何种情况，您承担的责任上限均为 50 美元。", "zht": ""},
+ {"cat": "Billing disputes", "en": "This notice contains important information about your rights and our responsibilities under the Fair Credit Billing Act. Keep this notice for future use.", "zh": "本通知载有重要信息，说明您在《公平信用账单法》下享有的权利以及我们所承担的责任。请妥善保存本通知，以备日后查阅。", "zht": ""},
+ {"cat": "Billing disputes", "en": "If you think your bill is wrong, or if you need more information about a transaction on your bill, write to us at the address listed on your bill as soon as possible. We must hear from you no later than 60 days after we sent you the first bill on which the error or problem appeared. You can telephone us, but doing so will not preserve your rights.", "zh": "如果您认为账单有误，或者需要了解账单上某笔交易的更多信息，请尽快按账单上列明的地址写信给我们。我们必须在您收到首份出现该错误或问题的账单之日起 60 天内收到您的来信。您也可以致电我们，但致电不能保留您的权利。", "zht": ""},
+ {"cat": "Billing disputes", "en": "In your letter, give us the following information: your name and account number; the dollar amount of the suspected error; and describe the error and explain, if you can, why you believe there is an error.", "zh": "请在信中提供以下信息：您的姓名和账号；您认为出错的具体金额；以及对该错误的描述，如果可以的话，请说明您认为存在错误的理由。", "zht": ""},
+ {"cat": "Billing disputes", "en": "If you have authorized us to pay your credit card bill automatically from your savings or checking account, you can stop the payment on any amount you think is wrong. To stop the payment your letter must reach us 3 business days before the automatic payment is scheduled to occur.", "zh": "如果您已授权我们从您的储蓄账户或支票账户自动支付信用卡账单，您可以就任何您认为有误的金额停止付款。若要停止付款，您的来信必须在预定自动扣款日之前 3 个工作日送达我们。", "zht": ""},
+ {"cat": "Billing disputes", "en": "When we receive your letter, we must do two things. First, within 30 days of receiving your letter, we must tell you that we received your letter. Second, within 90 days, we must either correct the error or explain to you why we believe the bill is correct.", "zh": "我们收到您的来信后，必须做两件事。第一，在收到来信之日起 30 天内，我们必须告知您已收到来信。第二，在 90 天内，我们必须更正该错误，或者向您说明我们认为账单无误的理由。", "zht": ""},
+ {"cat": "Billing disputes", "en": "While we investigate whether or not there has been an error, we cannot try to collect the amount in question, or report you as delinquent on that amount. The charge in question may remain on your statement, and we may continue to charge you interest on that amount. While you do not have to pay the amount in question, you are responsible for the remainder of your balance.", "zh": "在我们调查是否存在错误期间，我们不得就争议金额向您催收，也不得就该笔金额将您记录为逾期。该笔争议交易可能仍会显示在您的对账单上，我们也可能继续就该金额计收利息。虽然您无需支付争议金额，但您仍须对余下的欠款负责。", "zht": ""},
+ {"cat": "Billing disputes", "en": "After we finish our investigation, one of two things will happen. If we made a mistake, you will not have to pay the amount in question or any interest or other fees related to that amount. If we do not believe there was a mistake, you will have to pay the amount in question, along with applicable interest and fees.", "zh": "调查结束后会有两种结果。如果确实是我们的失误，您无需支付该笔争议金额，也无需支付与之相关的任何利息或其他费用。如果我们认为并不存在错误，您则须支付该笔争议金额，以及相应的利息和费用。", "zht": ""},
+ {"cat": "Billing disputes", "en": "If you receive our explanation but still believe your bill is wrong, you must write to us within 10 days telling us that you still refuse to pay. If you do so, we cannot report you as delinquent without also reporting that you are questioning your bill. We must tell you the name of anyone to whom we reported you as delinquent.", "zh": "如果您收到我们的说明后仍认为账单有误，您必须在 10 天内写信告知我们您仍拒绝付款。若您这样做，我们在将您记录为逾期时，必须同时注明您对该账单存有异议。我们也必须告知您，我们向哪些机构报告了您的逾期记录。", "zht": ""},
+ {"cat": "Billing disputes", "en": "If we do not follow all of the rules above, you do not have to pay the first $50 of the amount you question even if your bill is correct.", "zh": "如果我们未能遵守上述全部规定，即使您的账单本身无误，您也无需支付争议金额中的头 50 美元。", "zht": ""},
+ {"cat": "Purchase disputes", "en": "If you are dissatisfied with the goods or services that you have purchased with your credit card, and you have tried in good faith to correct the problem with the merchant, you may have the right not to pay the remaining amount due on the purchase.", "zh": "如果您对使用信用卡购买的商品或服务不满意，并且已经善意地尝试与商家解决该问题，您可能有权不再支付该笔消费的剩余欠款。", "zht": ""},
+ {"cat": "Purchase disputes", "en": "To use this right, all of the following must be true. The purchase must have been made in your home state or within 100 miles of your current mailing address, and the purchase price must have been more than $50. Neither of these is necessary if your purchase was based on an advertisement we mailed to you, or if we own the company that sold you the goods or services.", "zh": "要行使这项权利，以下条件必须全部满足。该笔消费必须发生在您所居住的州境内，或者在您当前邮寄地址 100 英里的范围内，并且消费金额必须超过 50 美元。但如果该笔消费是基于我们邮寄给您的广告而发生的，或者销售该商品或服务的公司为我们所有，则上述两项条件均无需满足。", "zht": ""},
+ {"cat": "Purchase disputes", "en": "You must have used your credit card for the purchase. Purchases made with cash advances from an ATM or with a check that accesses your credit card account do not qualify. You must not yet have fully paid for the purchase.", "zh": "该笔消费必须是使用信用卡支付的。通过 ATM 预借现金，或使用可动用信用卡账户的支票所进行的消费，均不符合条件。此外，您对该笔消费尚未全额付清。", "zht": ""},
+ {"cat": "Over-limit coverage", "en": "Unless you tell us otherwise, we will decline any transaction that causes you to go over your credit limit. If you want us to authorize these transactions, you can request over-the-credit limit coverage.", "zh": "除非您另行告知，否则凡是会导致您超出信用额度的交易，我们一律拒绝授权。如果您希望我们为这类交易授权，可以申请开通超限额度服务。", "zht": ""},
+ {"cat": "Over-limit coverage", "en": "If you have over-the-credit limit coverage and you go over your credit limit, we will charge you a fee of up to $35. We may also increase your APRs to the Penalty APR. You will only pay one fee per billing cycle, even if you go over your limit multiple times in the same cycle.", "zh": "如果您已开通超限额度服务并且实际超出了信用额度，我们将收取最高 35 美元的费用，同时可能将您的年利率上调至罚息年利率。即使您在同一个账单周期内多次超限，也只收取一次费用。", "zht": ""},
+ {"cat": "Over-limit coverage", "en": "Even if you request over-the-credit limit coverage, in some cases we may still decline a transaction that would cause you to go over your limit, such as if you are past due or significantly over your credit limit.", "zh": "即使您已申请开通超限额度服务，在某些情况下我们仍可能拒绝会导致您超限的交易，例如您已经逾期，或者已经大幅超出信用额度。", "zht": ""},
+ {"cat": "Over-limit coverage", "en": "You currently have over-the-credit limit coverage on your account, which means that we pay transactions that cause you to go over your credit limit. To remove over-the-credit-limit coverage from your account, call us at the number on the back of your card or visit our website.", "zh": "您的账户目前已开通超限额度服务，也就是说，会导致您超出信用额度的交易我们仍会照付。如需取消该服务，请拨打卡背面的电话，或访问我们的网站。", "zht": ""},
+ {"cat": "Late payment", "en": "Late Payment Warning: If we do not receive your minimum payment by the date listed above, you may have to pay a $35 late fee and your APRs may be increased up to the Penalty APR of 28.99%.", "zh": "逾期还款提示：如果我们未在上述日期前收到您的最低还款额，您可能需要支付 35 美元的滞纳金，并且您的年利率可能被上调至 28.99% 的罚息年利率。", "zht": ""},
+ {"cat": "Deferred interest", "en": "You must pay your promotional balance in full by the date shown to avoid paying accrued interest charges.", "zh": "您必须在所示日期之前全额付清优惠期内的欠款余额，才能免于支付已累计的利息费用。", "zht": ""},
+ {"cat": "Deferred interest", "en": "Interest will be charged to your account from the purchase date if the purchase balance is not paid in full within the deferred interest period, or if you make a late payment.", "zh": "如果您未在延期计息期内全额付清该笔消费的欠款，或者出现逾期还款，我们将从消费当日起对您的账户计收利息。", "zht": ""},
+ {"cat": "Optional add-ons", "en": "I understand that enrollment is not required to obtain credit. I also understand that depending on the event, the protection may only temporarily suspend my duty to make minimum payments, not reduce the balance I owe. I understand that my balance will actually grow during the suspension period as interest continues to accumulate.", "zh": "本人理解，参加本项目并非获得信贷的必要条件。本人也理解，视触发事件而定，该保障可能只是暂时中止本人支付最低还款额的义务，并不会减少本人的欠款余额。本人理解，在中止期间利息将持续累计，本人的欠款余额实际上还会增加。", "zht": ""},
+ {"cat": "Insurance changes", "en": "The credit card account you have with us is insured. This is to notify you that we plan to replace your current coverage with insurance coverage from a different insurer. If we obtain insurance for your account from a different insurer, you may cancel the insurance.", "zh": "您在我行的信用卡账户已投保。现通知您，我们计划将您目前的保障更换为另一家保险公司提供的保险保障。如果我们为您的账户改由另一家保险公司承保，您可以选择取消该保险。", "zht": ""},
+ {"cat": "Insurance changes", "en": "Your coverage will be affected by the following: the elimination of a type of coverage previously provided to you; a decrease in your maximum insurable balance or maximum periodic benefit payment; a restriction in the definition of disability or other key term of coverage; or an increase in the elimination or waiting period.", "zh": "您的保障将受到以下变动的影响：取消原先向您提供的某一类保障；下调可投保余额上限或每期给付上限；收紧「伤残」或其他关键条款的定义；或者延长免责期，也就是等待期。", "zht": ""},
+ {"cat": "Applications", "en": "The information about the costs of the card described in this application is accurate as of the date shown. This information may have changed after that date. To find out what may have changed, call us or write to us at the address provided.", "zh": "本申请表中所述的用卡费用信息，截至所示日期为准确信息。该日期之后信息可能已有变动。如需了解具体变动内容，请致电我们，或按所提供的地址来函咨询。", "zht": ""},
+ {"cat": "Medicare appeals", "en": "If you disagree with a coverage or payment decision by Original Medicare, your Medicare Advantage plan, or your Medicare drug plan, you can file an appeal.", "zh": "如果您不同意 Original Medicare、您的 Medicare Advantage 计划或您的 Medicare 处方药计划做出的承保或付款决定，您可以提出申诉。", "zht": ""},
+ {"cat": "Medicare appeals", "en": "You can file an appeal if Medicare or your plan refuses to cover a service you think should be covered, refuses to pay for something you already got, or stops providing or paying for care you think you still need.", "zh": "如果 Medicare 或您的计划拒绝承保某项您认为应当承保的服务、拒绝为您已经接受的项目付款，或者停止提供、停止支付某项您认为仍然需要的照护，您都可以提出申诉。", "zht": ""},
+ {"cat": "Medicare appeals", "en": "The appeals process varies based on the kind of coverage you have. Generally, there are 5 levels of appeals. If you disagree with the decision made at any level of the process, you can usually go to the next level.", "zh": "申诉流程因您所持保险类型而异。一般分为 5 级。如果您不同意其中任何一级作出的决定，通常可以进入下一级继续申诉。", "zht": ""},
+ {"cat": "Medicare appeals", "en": "At each level you'll get a decision letter with instructions on how to move to the next level of appeal.", "zh": "每一级审理结束后，您都会收到一封决定通知函，里面会说明如何进入下一级申诉。", "zht": ""},
+ {"cat": "Medicare appeals", "en": "If you're in a Medicare Advantage plan, other health plan, or a drug plan, check your plan materials, or contact your plan, for details about your appeal rights. The plan must tell you, in writing, how to appeal.", "zh": "如果您参加的是 Medicare Advantage 计划、其他健康计划或处方药计划，请查阅您的计划资料，或直接联系您的计划，了解申诉权利的具体规定。计划方必须以书面形式告知您如何提出申诉。", "zht": ""},
+ {"cat": "Medicare appeals", "en": "Before you start an appeal, you can ask your provider or supplier for any information to make your appeal stronger.", "zh": "在提出申诉之前，您可以向您的医疗服务提供者或供应商索取任何有助于加强您申诉理由的资料。", "zht": ""},
+ {"cat": "Medicare appeals", "en": "To get a judicial review in federal district court, the amount of your case must meet a minimum dollar amount. You may be able to combine claims to meet this dollar amount.", "zh": "若要向联邦地区法院申请司法复审，您案件的争议金额必须达到规定的最低门槛。您可以将多笔理赔合并计算，以达到该金额要求。", "zht": ""},
+ {"cat": "Fast appeals", "en": "You have the right to a fast appeal if you think your Medicare-covered services are ending too soon. This includes services you get from a hospital, skilled nursing facility, home health agency, comprehensive outpatient rehabilitation facility, or hospice.", "zh": "如果您认为 Medicare 承保的服务结束得过早，您有权申请快速申诉。这适用于您在医院、专业护理机构、居家健康护理机构、综合门诊康复机构或安宁疗护机构所接受的服务。", "zht": ""},
+ {"cat": "Fast appeals", "en": "Your provider will give you a written notice before your services end that tells you how to ask for a fast appeal. If they don't give you this notice, ask for it.", "zh": "在服务结束之前，您的医疗服务提供者会给您一份书面通知，说明如何申请快速申诉。如果对方没有给您这份通知，请主动索取。", "zht": ""},
+ {"cat": "Fast appeals", "en": "If you have a trusted family member or friend helping you with a complaint, you can appoint them as a representative.", "zh": "如果有您信任的家人或朋友协助您处理投诉，您可以指定对方作为您的代理人。", "zht": ""},
+ {"cat": "Notice of non-coverage", "en": "This notice tells you that Medicare usually covers this item or service, but may not cover it in your particular situation, for example because it is not considered medically necessary.", "zh": "本通知是要告知您：Medicare 通常承保此项目或服务，但在您的具体情况下可能不予承保，例如因为不被认定为医疗上必需。", "zht": ""},
+ {"cat": "Notice of non-coverage", "en": "This notice gives you the information you need to decide whether to receive the item or service. If you choose to receive it and Medicare does not pay, you may be responsible for the full cost.", "zh": "本通知向您提供必要信息，以便您决定是否接受该项目或服务。如果您选择接受，而 Medicare 最终不予支付，您可能需要承担全部费用。", "zht": ""},
+ {"cat": "Notice of non-coverage", "en": "You are being informed that you are an outpatient receiving observation services and are not an inpatient of the hospital. This may affect what you pay and whether Medicare will cover skilled nursing facility care afterward.", "zh": "现通知您：您目前是接受观察服务的门诊病人，并非住院病人。这可能影响您需要自付的金额，以及之后 Medicare 是否承保专业护理机构的照护费用。", "zht": ""},
+ {"cat": "Medicaid notices", "en": "This notice states what action the agency intends to take and the effective date of that action.", "zh": "本通知载明本机构拟采取的处理措施，以及该措施的生效日期。", "zht": ""},
+ {"cat": "Medicaid notices", "en": "This notice includes a clear statement of the specific reasons supporting the intended action, and the specific regulations or change in federal or state law that requires the action.", "zh": "本通知明确说明支持该项处理措施的具体理由，以及要求采取该措施的具体法规，或联邦或州法律的相关变更。", "zht": ""},
+ {"cat": "Medicaid notices", "en": "You have the right to request a state agency hearing. If the action is based on a change in law, this notice explains the circumstances under which a hearing will be granted.", "zh": "您有权申请州机构听证。如果该项处理措施是基于法律变更作出的，本通知会说明在何种情况下才会受理听证申请。", "zht": ""},
+ {"cat": "Medicaid notices", "en": "This notice explains the circumstances under which your Medicaid benefits are continued if you request a hearing.", "zh": "本通知说明：如果您申请听证，在何种情况下您的 Medicaid 福利可以继续维持。", "zht": ""},
+ {"cat": "Medicaid notices", "en": "If you request a hearing before the effective date of this action, your benefits may continue unchanged until a decision is made. If the decision is not in your favor, you may be required to repay the cost of any benefits you received during that period.", "zh": "如果您在本措施生效日期之前申请听证，您的福利可能在裁决作出之前维持不变。但如果裁决结果对您不利，您可能需要偿还这段期间已领取福利所产生的费用。", "zht": ""},
+ {"cat": "Eligibility and renewal", "en": "It is time to renew your health coverage. If we are able to renew your coverage using information we already have, you will receive a notice and will not need to take any action.", "zh": "您的医疗保险已到续保时间。如果我们能够使用现有信息为您办理续保，您会收到一份通知，无需采取任何行动。", "zht": ""},
+ {"cat": "Eligibility and renewal", "en": "If we need more information, you must respond by the date shown on the notice. If you do not respond, your coverage may end.", "zh": "如果我们需要补充信息，您必须在通知上所示日期之前答复。如果您未作答复，您的保险可能会被终止。", "zht": ""},
+ {"cat": "Eligibility and renewal", "en": "You must report any change in your household size, income, address, or immigration status within 10 days of the change.", "zh": "您的家庭人数、收入、地址或移民身份如有变动，必须在变动发生后 10 天内申报。", "zht": ""},
+ {"cat": "Eligibility and renewal", "en": "If your coverage ends, you may still qualify for other affordable health coverage. You will receive information about your options and the deadline to enroll.", "zh": "即使您的保险被终止，您仍可能符合其他可负担医疗保险的资格。您会收到有关可选方案以及投保截止日期的信息。", "zht": ""},
+ {"cat": "Coverage decisions", "en": "Please note that this is not a guarantee of payment. Benefits are subject to eligibility and the terms of the member's plan at the time services are rendered.", "zh": "请注意，这并不构成付款保证。给付以服务实际提供当时会员的参保资格和计划条款为准。", "zht": ""},
+ {"cat": "Coverage decisions", "en": "This service requires prior authorization. Your provider must submit a request and receive approval before the service is provided, or the claim may be denied.", "zh": "此项服务需要事先授权。您的医疗服务提供者必须在提供服务之前提交申请并获得批准，否则该笔理赔可能会被拒付。", "zht": ""},
+ {"cat": "Coverage decisions", "en": "We reviewed your request and determined that the requested service is not covered under your plan. This notice explains the reason for the decision and the clinical criteria we applied.", "zh": "我们已审核您的申请，认定所申请的服务不在您的计划承保范围内。本通知会说明作出该决定的理由，以及我们所依据的临床标准。", "zht": ""},
+ {"cat": "Coverage decisions", "en": "You may request a copy of the clinical criteria used to make this decision, free of charge. You may also request a copy of all documents relevant to your claim.", "zh": "您可以免费索取作出该决定所依据的临床标准副本，也可以索取与您的理赔相关的全部文件副本。", "zht": ""},
+ {"cat": "Coverage decisions", "en": "If you disagree with this determination, you have the right to file an appeal within 180 days of the date on this notice. You may also request an expedited review if a delay would seriously jeopardize your health.", "zh": "如果您不同意本裁定，您有权自本通知所示日期起 180 天内提出申诉。如果延误会严重危及您的健康，您还可以申请加急审核。", "zht": ""},
+ {"cat": "Verification", "en": "Before we begin, I need to verify some information for security purposes. Can you please confirm the member's full name, date of birth, and member identification number?", "zh": "在开始之前，出于安全考虑，我需要核实一些信息。请您确认一下会员的全名、出生日期和会员号，可以吗？", "zht": ""},
+ {"cat": "Medi-Cal NOA", "en": "A Notice of Action is a written notice that explains your eligibility for coverage or benefits. It includes the eligibility decision and the effective date of coverage, as well as any changes made to your eligibility status or level of benefits.", "zh": "处理决定通知书是一份书面通知，用于说明您在保险或福利方面的资格认定结果。其中包含资格认定决定、保险生效日期，以及您的资格状态或福利等级所发生的任何变更。", "zht": ""},
+ {"cat": "Medi-Cal NOA", "en": "The notice must also include information about your hearing rights and how to appeal the decision if you disagree with the eligibility determination.", "zh": "该通知还必须载明您的听证权利，以及在您不同意该项资格认定时应如何提出申诉。", "zht": ""},
+ {"cat": "Medi-Cal NOA", "en": "If you do not understand your notice, or you have questions about your eligibility, please contact your local county office at the phone number listed on the notice.", "zh": "如果您看不懂这份通知，或者对自己的资格认定有疑问，请拨打通知上所列的电话，与您所在县的办事处联系。", "zht": ""},
+ {"cat": "Medi-Cal NOA", "en": "If you receive a notice in a language you are not able to read or understand, you should call the number on the notice and ask for assistance. You have the right to interpreter services provided by the county at no cost to you.", "zh": "如果您收到的通知使用的是您无法阅读或理解的语言，请拨打通知上的号码请求协助。您有权获得由县方免费提供的口译服务。", "zht": ""},
+ {"cat": "Medi-Cal NOA", "en": "If you disagree with any decision that has been made, you may file an appeal and request a state hearing.", "zh": "如果您不同意已经作出的任何决定，您可以提出申诉并申请州级听证。", "zht": ""},
+ {"cat": "Medi-Cal NOA", "en": "You may request a state hearing within 90 days of the date the notice was mailed to you. This deadline is set by federal law.", "zh": "您可以在通知寄出之日起 90 天内申请州级听证。该期限由联邦法律规定。", "zht": ""},
+ {"cat": "Medi-Cal NOA", "en": "If you request the hearing before the date the action takes effect, your benefits will continue unchanged while your appeal is pending. This is known as aid paid pending.", "zh": "如果您在该措施生效日期之前提出听证申请，在申诉审理期间您的福利将维持不变。这种情况通常称为「待决期间继续给付」。", "zht": ""},
+ {"cat": "Medi-Cal NOA", "en": "At the hearing you have the right to be represented by legal counsel, a friend, or another spokesperson of your choosing.", "zh": "在听证会上，您有权由律师、朋友，或者您自行选定的其他代言人代表出席。", "zht": ""},
+ {"cat": "Medi-Cal NOA", "en": "If you received more than one notice showing eligibility for different months, your coverage began in the earliest month listed, and there are no gaps in your coverage.", "zh": "如果您收到多份通知，上面显示的生效月份各不相同，那么您的保险从所列最早的那个月起生效，中间没有断保。", "zht": ""},
+ {"cat": "Medi-Cal NOA", "en": "If you have questions about whether you are eligible to have older medical bills paid, contact your county office.", "zh": "如果您想了解自己是否符合资格、由计划支付较早期的医疗账单，请与您所在县的办事处联系。", "zht": ""}
 ];
 
 const KEY="disclosure_trainer_v2";
@@ -346,9 +408,9 @@ function load(){
     if(s){const a=JSON.parse(s);
       if(Array.isArray(a)&&a.length)return a.map((d,i)=>({id:d.id??i+1,cat:d.cat||"",
         en:d.en||"",zh:d.zh||"",zht:d.zht||"",mastered:!!d.mastered,
-        due:d.due??0,ivl:d.ivl??0,notes:d.notes||""}));}
+        due:d.due??0,ivl:d.ivl??0,notes:d.notes||"",edited:!!d.edited}));}
   }catch(e){}
-  return SEED.map((d,i)=>({...d,id:i+1,mastered:false,due:0,ivl:0,notes:""}));
+  return SEED.map((d,i)=>({...d,id:i+1,mastered:false,due:0,ivl:0,notes:"",edited:false}));
 }
 const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(data))}catch(e){}};
 const esc=s=>(s||"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
@@ -382,8 +444,11 @@ function applyUI(){
   S("l-split",t("split"));S("l-hl",t("hl"));S("l-speed",t("speed"));
   S("lb-cat",t("fCat"));S("lb-en",t("fEn"));S("lb-zh",t("fZh"));S("lb-zht",t("fZht"));
   S("lb-save",t("save"));S("lb-cancel",t("cancel"));S("f-del",t("del"));S("ft",t("foot"));
-  document.getElementById("lb-warn").innerHTML=t("warn");
   document.getElementById("q").placeholder=t("search");
+  const nEdit=data.filter(d=>d.edited).length;
+  const sh=document.getElementById("t-share");
+  sh.style.display=nEdit?"":"none";
+  sh.textContent=t("share")+" ("+nEdit+")";
   document.getElementById("ui").textContent=ui==="en"?"中文":"EN";
   const dueN=data.filter(d=>!d.mastered&&isDue(d)).length;
   S("t-count",t("count")(dueN,data.length));
@@ -572,8 +637,8 @@ document.getElementById("dlg").addEventListener("close",function(){
   const v=this.returnValue,en=document.getElementById("f-en").value.trim();
   if(v==="save"&&en){
     const o={};for(const k in F)o[k]=document.getElementById(F[k]).value.trim();
-    if(editing)Object.assign(data.find(x=>x.id===editing),o);
-    else data.push({id:Date.now(),...o,mastered:false,due:0,ivl:0,notes:""});
+    if(editing)Object.assign(data.find(x=>x.id===editing),o,{edited:true});
+    else data.push({id:Date.now(),...o,mastered:false,due:0,ivl:0,notes:"",edited:true});
     save();
   }
   if(v==="delete"&&editing)data=data.filter(x=>x.id!==editing),save();
@@ -599,6 +664,13 @@ T$("m-list",()=>{mode="list";stopRec();speechSynthesis.cancel();
 T$("t-prt",()=>{const k=optDue,j=optDone,m=mode;
   optDue=false;optDone=true;mode="list";render();window.print();
   optDue=k;optDone=j;mode=m;render()});
+T$("t-share",()=>{
+  const mine=data.filter(d=>d.edited).map(({id,cat,en,zh,zht})=>({id,cat,en,zh,zht}));
+  if(!mine.length)return;
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(new Blob([JSON.stringify(mine,null,2)],{type:"application/json"}));
+  a.download="my-edits.json";a.click();
+});
 T$("t-exp",()=>{const a=document.createElement("a");
   a.href=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:"application/json"}));
   a.download="disclosure-passages.json";a.click()});
@@ -616,7 +688,7 @@ T$("t-imp",()=>{
           if(!(same.zht||"").trim()&&d.zht)same.zht=d.zht;
           if(!same.cat&&d.cat)same.cat=d.cat;upd++}
         else{data.push({id:d.id??Date.now()+Math.random(),cat:d.cat||"",en:d.en,
-          zh:d.zh||"",zht:d.zht||"",mastered:false,due:0,ivl:0,notes:""});add++}
+          zh:d.zh||"",zht:d.zht||"",mastered:false,due:0,ivl:0,notes:"",edited:false});add++}
       });
       save();idx=0;order=null;render();alert(t("impDone")(add,upd,skip));
     }catch(e){alert(t("impBad"))}};
