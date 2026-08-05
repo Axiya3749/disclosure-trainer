@@ -101,12 +101,15 @@
   /* 工具行 */
   .tools{display:flex;gap:8px;flex-wrap:wrap;align-items:center;
     font-size:12.5px;color:var(--muted);padding:18px 0 16px}
-  .langwrap{position:relative;display:inline-block}
+  .langwrap{position:relative;display:inline-flex;align-items:center;min-height:40px;
+    padding:0 14px;border-radius:999px;background:var(--card);border:1.5px solid var(--line)}
   .langwrap select{position:absolute;inset:0;width:100%;height:100%;
     opacity:0;cursor:pointer;font:inherit}
-  .tools span{cursor:pointer;padding:5px 13px;border-radius:99px;background:var(--card);
+  .tools > span{cursor:pointer;padding:5px 13px;border-radius:99px;background:var(--card);
     border:1.5px solid var(--line);transition:transform .16s,border-color .16s,color .16s}
-  .tools span:hover{transform:translateY(-1px);border-color:var(--peach);color:var(--rose)}
+  .tools > span:hover{transform:translateY(-1px);border-color:var(--peach);color:var(--rose)}
+  .langwrap:hover{border-color:var(--peach)}
+  .langwrap #t-lang{padding:0;border:0;background:none;color:inherit}
   .tools .dot{display:none}
   #t-count{background:none;border:0;cursor:default;margin-left:auto}
   #t-count:hover{transform:none;color:var(--muted)}
@@ -134,6 +137,8 @@
   @keyframes beat{0%,100%{box-shadow:0 0 0 0 rgba(232,139,124,.5)}
     70%{box-shadow:0 0 0 12px rgba(232,139,124,0)}}
   .row{display:flex;gap:9px;align-items:center;flex-wrap:wrap}
+  #cat,#q{min-height:42px;border-radius:999px}
+  #cat{min-width:180px}
 
   /* 设置抽屉 */
   .drawer{display:none;background:var(--soft);border-radius:16px;padding:18px 20px;
