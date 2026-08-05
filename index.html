@@ -105,11 +105,12 @@
     padding:0 14px;border-radius:999px;background:var(--card);border:1.5px solid var(--line)}
   .langwrap select{position:absolute;inset:0;width:100%;height:100%;
     opacity:0;cursor:pointer;font:inherit}
-  .tools > span{cursor:pointer;padding:5px 13px;border-radius:99px;background:var(--card);
+  .tools > span:not(.sp):not(.dot){cursor:pointer;padding:5px 13px;border-radius:99px;background:var(--card);
     border:1.5px solid var(--line);transition:transform .16s,border-color .16s,color .16s}
-  .tools > span:hover{transform:translateY(-1px);border-color:var(--peach);color:var(--rose)}
+  .tools > span:not(.sp):not(.dot):hover{transform:translateY(-1px);border-color:var(--peach);color:var(--rose)}
   .langwrap:hover{border-color:var(--peach)}
   .langwrap #t-lang{padding:0;border:0;background:none;color:inherit}
+  .tools .sp{display:block;flex:1 1 0;min-width:0;padding:0;border:0;background:none;pointer-events:none}
   .tools .dot{display:none}
   #t-count{background:none;border:0;cursor:default;margin-left:auto}
   #t-count:hover{transform:none;color:var(--muted)}
