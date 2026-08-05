@@ -113,7 +113,11 @@
 
   /* 控件 */
   select,input[type=text]{font:inherit;font-size:13px;padding:8px 12px;
-    border:1.5px solid var(--line);border-radius:12px;background:var(--card);color:var(--ink)}
+    border:1.5px solid var(--line);border-radius:12px;background:var(--card);color:var(--ink);
+    appearance:none;-webkit-appearance:none;box-shadow:none;background-clip:padding-box}
+  select{padding-right:34px;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6'%3E%3Cpath fill='none' stroke='%23f4a58c' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.6' d='M1 1l4 4 4-4'/%3E%3C/svg%3E");
+    background-repeat:no-repeat;background-position:right 12px center;background-size:10px 6px}
   select:focus,input:focus{outline:none;border-color:var(--peach)}
   button{font:inherit;font-size:13px;padding:8px 16px;border:1.5px solid var(--line);
     background:var(--card);color:var(--ink);border-radius:12px;cursor:pointer;
@@ -147,8 +151,6 @@
     padding:34px 40px 30px;position:relative;overflow:hidden;
     box-shadow:0 8px 26px rgba(184,120,95,.09);animation:rise .34s ease}
   @keyframes rise{from{opacity:0;transform:translateY(12px)}}
-  .card::before{content:"";position:absolute;top:0;left:0;right:0;height:6px;
-    background:linear-gradient(90deg,var(--peach),var(--butter),var(--blush))}
   .meta{display:flex;align-items:center;gap:9px;flex-wrap:wrap;
     font-size:12px;color:var(--muted);margin:6px 0 24px}
   .tag{color:var(--rose);background:var(--soft);padding:3px 12px;border-radius:99px;
@@ -295,6 +297,7 @@
   <label id="lb-en"></label><textarea id="f-en"></textarea>
   <label id="lb-zh"></label><textarea id="f-zh"></textarea>
   <label id="lb-zht"></label><textarea id="f-zht"></textarea>
+  <label id="lb-es"></label><textarea id="f-es"></textarea>
   <div class="row" style="margin-top:4px">
     <button value="save" class="pri" id="lb-save"></button>
     <button value="cancel" id="lb-cancel"></button>
@@ -307,7 +310,7 @@ const T={
 en:{title:"Disclosure Trainer for Interpreters",focus:"Practice",list:"All passages",
  allCat:"All categories",search:"Search",
  add:"Add",imp:"Import",exp:"Backup",print:"PDF",settings:"Settings",
- lang:"Language",simp:"Chinese (Simplified)",trad:"Chinese (Traditional)",
+ lang:"Language",simp:"Chinese (Simplified)",trad:"Chinese (Traditional)",spanish:"Spanish",
  due:"Due only",done:"Include mastered",shuffle:"Shuffle",split:"Split sentences",
  hl:"Highlight numbers",speed:"Playback speed",
  count:(d,a)=>`${d} due · ${a} total`,
@@ -319,7 +322,7 @@ en:{title:"Disclosure Trainer for Interpreters",focus:"Practice",list:"All passa
  micFile:"Browsers block the microphone on local files. Recording works once this is hosted.",
  showSrc:"Show source",hideSrc:"Hide source",showTgt:"Show reference",hideTgt:"Hide reference",
  lblSrc:"Source",lblTgt:"Reference rendering",
- noTgt:"No reference rendering yet. Use Edit to add one.",
+ noTgt:"No reference rendering yet for this language. Use Edit to add one.",
  r1:"Hard",r2:"OK",r3:"Easy",rateHint:"How did that go?",
  master:"Mastered",unmaster:"Un-master",isMastered:"mastered",edit:"Edit",
  prev:"Previous",next:"Next",pos:(a,b)=>`${a} of ${b}`,
@@ -327,7 +330,7 @@ en:{title:"Disclosure Trainer for Interpreters",focus:"Practice",list:"All passa
  empty:"Nothing due right now.<br>Open Settings and turn off “Due only” to see everything.",
 
  share:"Share edits",fCat:"Category",fEn:"Source text (English)",fZh:"Reference rendering (Simplified Chinese)",
- fZht:"Reference rendering (Traditional Chinese, optional)",
+ fZht:"Reference rendering (Traditional Chinese, optional)",fEs:"Reference rendering (Spanish, optional)",
  save:"Save",cancel:"Cancel",del:"Delete",
  foot:"Passages come from public federal model forms. Nothing here is from a real call.",
  impDone:(a,u,s)=>`Import complete\n\n${a} added\n${u} already present (blanks filled, your edits untouched)`+(s?`\n${s} skipped`:""),
@@ -335,7 +338,7 @@ en:{title:"Disclosure Trainer for Interpreters",focus:"Practice",list:"All passa
 zh:{title:"口译员披露段落训练器",focus:"练习",list:"全部段落",
  allCat:"全部类别",search:"搜索",
  add:"新增",imp:"导入",exp:"备份",print:"存 PDF",settings:"设置",
- lang:"语言",simp:"中文（简体）",trad:"中文（繁體）",
+ lang:"语言",simp:"中文（简体）",trad:"中文（繁體）",spanish:"西班牙语",
  due:"只看到期",done:"含已掌握",shuffle:"随机顺序",split:"拆句",
  hl:"高亮数字",speed:"朗读语速",
  count:(d,a)=>`到期 ${d} · 共 ${a}`,
@@ -347,7 +350,7 @@ zh:{title:"口译员披露段落训练器",focus:"练习",list:"全部段落",
  micFile:"本地打开时浏览器禁止使用麦克风，部署到网站后才能录音。",
  showSrc:"显示原文",hideSrc:"收起原文",showTgt:"显示定稿",hideTgt:"收起定稿",
  lblSrc:"原文",lblTgt:"你的定稿",
- noTgt:"还没填中文定稿，点「新增」旁的编辑补上。",
+ noTgt:"当前语言的定稿还没填，点编辑补上。",
  r1:"难",r2:"一般",r3:"熟",rateHint:"刚才那段怎么样？",
  master:"已掌握",unmaster:"取消已掌握",isMastered:"已掌握",edit:"编辑",
  prev:"上一段",next:"下一段",pos:(a,b)=>`第 ${a} / ${b} 段`,
@@ -355,11 +358,39 @@ zh:{title:"口译员披露段落训练器",focus:"练习",list:"全部段落",
  empty:"现在没有到期的段落。<br>打开设置，关掉「只看到期」就能看全部。",
 
  share:"分享修改",fCat:"类别",fEn:"英文原文",fZh:"中文定稿（简体）",
- fZht:"中文定稿（繁體，可留空）",
+ fZht:"中文定稿（繁體，可留空）",fEs:"西班牙语定稿（可留空）",
  save:"保存",cancel:"取消",del:"删除",
  foot:"段落取自公开的联邦示范表格，不含任何真实通话内容。",
  impDone:(a,u,s)=>`导入完成\n\n新增 ${a} 段\n已存在 ${u} 段（只补空缺，没有覆盖你改过的内容）`+(s?`\n跳过 ${s} 段`:""),
- impBad:"文件读取失败：不是有效的 JSON。"}
+ impBad:"文件读取失败：不是有效的 JSON。"},
+es:{title:"Entrenador de divulgaciones para intérpretes",focus:"Práctica",list:"Todos los pasajes",
+ allCat:"Todas las categorías",search:"Buscar",
+ add:"Agregar",imp:"Importar",exp:"Respaldo",print:"PDF",settings:"Ajustes",
+ lang:"Idioma",simp:"Chino (simplificado)",trad:"Chino (tradicional)",spanish:"Español",
+ due:"Solo vencidos",done:"Incluir dominados",shuffle:"Aleatorio",split:"Dividir oraciones",
+ hl:"Resaltar números",speed:"Velocidad",
+ count:(d,a)=>`${d} pendientes · ${a} total`,
+ s1:"Escuchar",s2:"Notas",s3:"Interpretar y grabar",s4:"Revisar",
+ play:"Reproducir",pause:"Pausar",resume:"Continuar",nextSent:"Siguiente oración",
+ padPh:"Toma notas mientras escuchas. Símbolos, abreviaturas, formato vertical, lo que te sirva. Solo tú las lees.",
+ escHint:"Pulsa Esc para salir del bloc y recuperar los atajos.",
+ recStart:"Grabar",recStop:"Detener",download:"Descargar",
+ micFile:"Los navegadores bloquean el micrófono en archivos locales. La grabación funciona cuando está alojado.",
+ showSrc:"Mostrar original",hideSrc:"Ocultar original",showTgt:"Mostrar referencia",hideTgt:"Ocultar referencia",
+ lblSrc:"Original",lblTgt:"Versión de referencia",
+ noTgt:"Todavía no hay versión de referencia para este idioma. Usa Editar para añadirla.",
+ r1:"Difícil",r2:"Bien",r3:"Fácil",rateHint:"¿Cómo salió?",
+ master:"Dominado",unmaster:"Quitar dominio",isMastered:"dominado",edit:"Editar",
+ prev:"Anterior",next:"Siguiente",pos:(a,b)=>`${a} de ${b}`,
+ keys:"<kbd>R</kbd> reproducir &nbsp;·&nbsp; <kbd>P</kbd> pausar &nbsp;·&nbsp; <kbd>C</kbd> siguiente oración &nbsp;·&nbsp; <kbd>B</kbd> reproducir grabación &nbsp;·&nbsp; <kbd>←</kbd><kbd>→</kbd> cambiar pasaje",
+ empty:"No hay nada pendiente ahora.<br>Abre Ajustes y desactiva “Solo vencidos” para verlo todo.",
+
+ share:"Compartir cambios",fCat:"Categoría",fEn:"Texto original (inglés)",fZh:"Versión de referencia (chino simplificado)",
+ fZht:"Versión de referencia (chino tradicional, opcional)",fEs:"Versión de referencia (español, opcional)",
+ save:"Guardar",cancel:"Cancelar",del:"Eliminar",
+ foot:"Los pasajes provienen de formularios públicos federales. Nada aquí proviene de una llamada real.",
+ impDone:(a,u,s)=>`Importación completa\n\n${a} agregados\n${u} ya existían (se rellenaron vacíos sin tocar tus cambios)`+(s?`\n${s} omitidos`:""),
+ impBad:"Ese archivo no es un JSON válido."}
 };
 let ui=localStorage.getItem("dt_ui")||"en";
 const t=k=>T[ui][k];
@@ -437,7 +468,7 @@ const SEED=[
 
 const KEY="disclosure_trainer_v2";
 const DAY=864e5;
-let data=load(),mode="focus",useT=false,idx=0;
+let data=load(),mode="focus",targetLang=localStorage.getItem("dt_target_lang")||"zh",idx=0;
 let optSplit=false,optHL=true,optShuffle=false,optDue=true,optDone=false;
 let revealed=new Set(),order=null,chunkIdx=0;
 let recorder=null,recBlob=null,recFor=null,paused=false;
@@ -446,14 +477,14 @@ function load(){
   try{const s=localStorage.getItem(KEY)||localStorage.getItem("disclosure_trainer_v1");
     if(s){const a=JSON.parse(s);
       if(Array.isArray(a)&&a.length)return a.map((d,i)=>({id:d.id??i+1,cat:d.cat||"",
-        en:d.en||"",zh:d.zh||"",zht:d.zht||"",mastered:!!d.mastered,
+        en:d.en||"",zh:d.zh||"",zht:d.zht||"",es:d.es||"",mastered:!!d.mastered,
         due:d.due??0,ivl:d.ivl??0,notes:d.notes||"",edited:!!d.edited}));}
   }catch(e){}
-  return SEED.map((d,i)=>({...d,id:i+1,mastered:false,due:0,ivl:0,notes:"",edited:false}));
+  return SEED.map((d,i)=>({...d,id:i+1,es:d.es||"",mastered:false,due:0,ivl:0,notes:"",edited:false}));
 }
 const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(data))}catch(e){}};
 const esc=s=>(s||"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
-const tgtOf=d=>useT?((d.zht||"").trim()||d.zh):d.zh;
+const tgtOf=d=>targetLang==="zht"?((d.zht||"").trim()||d.zh):(targetLang==="es"?(d.es||""):d.zh);
 const isDue=d=>!d.due||d.due<=Date.now();
 function mark(s,isEn){let h=esc(s);
   if(optHL&&isEn)h=h.replace(/(\d[\d,.]*\s*%?)/g,'<span class="num">$1</span>');return h}
@@ -466,14 +497,14 @@ function visible(){
   const cat=document.getElementById("cat").value;
   const q=document.getElementById("q").value.trim().toLowerCase();
   let r=data.filter(d=>(optDone||!d.mastered)&&(!optDue||optDone||isDue(d))&&
-    (!cat||d.cat===cat)&&(!q||(d.en+d.zh+d.zht).toLowerCase().includes(q)));
+    (!cat||d.cat===cat)&&(!q||(d.en+d.zh+d.zht+(d.es||"")).toLowerCase().includes(q)));
   if(optShuffle){if(!order||order.length!==r.length)order=r.map((_,i)=>i).sort(()=>Math.random()-.5);
     r=order.map(i=>r[i]).filter(Boolean)}
   return r;
 }
 
 function applyUI(){
-  document.documentElement.lang=ui==="en"?"en":(useT?"zh-TW":"zh-CN");
+  document.documentElement.lang=ui==="zh"?"zh-CN":(ui==="es"?"es":"en");
   document.title=t("title");
   const S=(id,txt)=>{const e=document.getElementById(id);if(e)e.textContent=txt};
   S("h1",t("title"));S("m-focus",t("focus"));S("m-list",t("list"));
@@ -481,18 +512,18 @@ function applyUI(){
   S("t-prt",t("print"));S("t-set",t("settings"));
   S("t-lang",t("lang"));
   const ls=document.getElementById("lang");
-  ls.innerHTML=`<option value="zh">${t("simp")}</option><option value="zht">${t("trad")}</option>`;
-  ls.value=useT?"zht":"zh";
+  ls.innerHTML=`<option value="zh">${t("simp")}</option><option value="zht">${t("trad")}</option><option value="es">${t("spanish")}</option>`;
+  ls.value=targetLang;
   S("l-due",t("due"));S("l-done",t("done"));S("l-shuffle",t("shuffle"));
   S("l-split",t("split"));S("l-hl",t("hl"));S("l-speed",t("speed"));
-  S("lb-cat",t("fCat"));S("lb-en",t("fEn"));S("lb-zh",t("fZh"));S("lb-zht",t("fZht"));
+  S("lb-cat",t("fCat"));S("lb-en",t("fEn"));S("lb-zh",t("fZh"));S("lb-zht",t("fZht"));S("lb-es",t("fEs"));
   S("lb-save",t("save"));S("lb-cancel",t("cancel"));S("f-del",t("del"));S("ft",t("foot"));
   document.getElementById("q").placeholder=t("search");
   const nEdit=data.filter(d=>d.edited).length;
   const sh=document.getElementById("t-share");
   sh.style.display=nEdit?"":"none";
   sh.textContent=t("share")+" ("+nEdit+")";
-  document.getElementById("ui").textContent=ui==="en"?"中文":"EN";
+  document.getElementById("ui").textContent=ui==="en"?"中文":(ui==="zh"?"ES":"EN");
   const dueN=data.filter(d=>!d.mastered&&isDue(d)).length;
   S("t-count",t("count")(dueN,data.length));
   const s=document.getElementById("cat"),c=s.value;
@@ -667,11 +698,11 @@ document.addEventListener("keydown",e=>{
   else if(k==="b")playback();
 });
 
-const F={cat:"f-cat",en:"f-en",zh:"f-zh",zht:"f-zht"};
+const F={cat:"f-cat",en:"f-en",zh:"f-zh",zht:"f-zht",es:"f-es"};
 let editing=null;
 function openEdit(id){
   editing=id;
-  const d=id?data.find(x=>x.id===id):{cat:"",en:"",zh:"",zht:""};
+  const d=id?data.find(x=>x.id===id):{cat:"",en:"",zh:"",zht:"",es:""};
   for(const k in F)document.getElementById(F[k]).value=d[k]||"";
   document.getElementById("f-del").style.display=id?"":"none";
   document.getElementById("dlg").showModal();
@@ -694,9 +725,9 @@ bind("c-due",v=>optDue=v);bind("c-done",v=>optDone=v);
 bind("c-shuffle",v=>optShuffle=v);bind("c-split",v=>optSplit=v);bind("c-hl",v=>optHL=v);
 
 const T$=(id,fn)=>document.getElementById(id).onclick=fn;
-T$("ui",()=>{ui=ui==="en"?"zh":"en";localStorage.setItem("dt_ui",ui);render()});
+T$("ui",()=>{ui=ui==="en"?"zh":(ui==="zh"?"es":"en");localStorage.setItem("dt_ui",ui);render()});
 T$("t-set",()=>document.getElementById("drawer").classList.toggle("open"));
-document.getElementById("lang").onchange=function(){useT=this.value==="zht";render()};
+document.getElementById("lang").onchange=function(){targetLang=this.value;localStorage.setItem("dt_target_lang",targetLang);render()};
 T$("t-add",()=>openEdit(null));
 T$("m-focus",()=>{mode="focus";stopRec();speechSynthesis.cancel();
   document.getElementById("m-focus").classList.add("on");
@@ -708,7 +739,7 @@ T$("t-prt",()=>{const k=optDue,j=optDone,m=mode;
   optDue=false;optDone=true;mode="list";render();window.print();
   optDue=k;optDone=j;mode=m;render()});
 T$("t-share",()=>{
-  const mine=data.filter(d=>d.edited).map(({id,cat,en,zh,zht})=>({id,cat,en,zh,zht}));
+  const mine=data.filter(d=>d.edited).map(({id,cat,en,zh,zht,es})=>({id,cat,en,zh,zht,es}));
   if(!mine.length)return;
   const a=document.createElement("a");
   a.href=URL.createObjectURL(new Blob([JSON.stringify(mine,null,2)],{type:"application/json"}));
@@ -729,9 +760,10 @@ T$("t-imp",()=>{
         const same=data.find(x=>x.id===d.id||x.en.trim()===d.en.trim());
         if(same){if(!same.zh.trim()&&d.zh)same.zh=d.zh;
           if(!(same.zht||"").trim()&&d.zht)same.zht=d.zht;
+          if(!(same.es||"").trim()&&d.es)same.es=d.es;
           if(!same.cat&&d.cat)same.cat=d.cat;upd++}
         else{data.push({id:d.id??Date.now()+Math.random(),cat:d.cat||"",en:d.en,
-          zh:d.zh||"",zht:d.zht||"",mastered:false,due:0,ivl:0,notes:"",edited:false});add++}
+          zh:d.zh||"",zht:d.zht||"",es:d.es||"",mastered:false,due:0,ivl:0,notes:"",edited:false});add++}
       });
       save();idx=0;order=null;render();alert(t("impDone")(add,upd,skip));
     }catch(e){alert(t("impBad"))}};
